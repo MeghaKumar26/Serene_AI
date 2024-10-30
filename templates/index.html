@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Serene AI - Virtual Mental Health Assistant</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Serene AI</h1>
+        <div class="mood-checkin">
+            <label for="mood">How are you feeling today?</label>
+            <input type="range" id="mood" min="1" max="5">
+        </div>
+        <div class="chatbot">
+            <h2>Chat with Serene AI</h2>
+            <textarea id="chatbox" placeholder="How can I help you today?"></textarea>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
