@@ -1,13 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random secret key
+app.secret_key = 'your_secret_key'
+socketio = SocketIO(app)
 
-# Sample user data for demonstration purposes
-users = {
-    'user1': 'password1',
-    'user2': 'password2'
-}
+# Simple user storage (in-memory for demonstration purposes)
+users = {}
 
 @app.route('/')
 def index():
@@ -15,28 +14,26 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = request.form['username']
+    password = request.form['password']
 
-    if username in users and users[username] == password:
+    # Allow any username and password
+    if username and password:
         session['username'] = username
-        flash('Login successful!', 'success')
-        return redirect(url_for('dashboard'))
-    else:
-        flash('Invalid credentials. Please try again.', 'danger')
-        return redirect(url_for('index'))
+        users[username] = password  # Store user credentials
+        return redirect(url_for('chat'))
 
-@app.route('/dashboard')
-def dashboard():
+    return redirect(url_for('index'))
+
+@app.route('/chat')
+def chat():
     if 'username' in session:
-        return render_template('index.html', username=session['username'])
+        return render_template('chat.html', username=session['username'])
     return redirect(url_for('index'))
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
+@socketio.on('send_message')
+def handle_send_message(data):
+    emit('receive_message', {'username': session['username'], 'message': data['message']}, broadcast=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
